@@ -120,11 +120,11 @@ def check_genetic_models(variant_batch, family, verbose = False, phased = False,
             compound_pairs = pair_generator.Pair_Generator(compound_candidates)
             for pair in compound_pairs.generate_pairs():
                 # Add the compound pair id to each variant
-                # if check_compounds(variant_batch[gene][pair[0]], variant_batch[gene][pair[1]], family, phased, intervals):
-                variant_batch[gene][pair[0]]['Compounds'][pair[1]] = 0
-                variant_batch[gene][pair[1]]['Compounds'][pair[0]] = 0
-                variant_batch[gene][pair[0]]['Inheritance_model']['AR_comp'] = True
-                variant_batch[gene][pair[1]]['Inheritance_model']['AR_comp'] = True
+                if check_compounds(variant_batch[gene][pair[0]], variant_batch[gene][pair[1]], family, phased, intervals):
+                    variant_batch[gene][pair[0]]['Compounds'][pair[1]] = 0
+                    variant_batch[gene][pair[1]]['Compounds'][pair[0]] = 0
+                    variant_batch[gene][pair[0]]['Inheritance_model']['AR_comp'] = True
+                    variant_batch[gene][pair[1]]['Inheritance_model']['AR_comp'] = True
     return
 
 def check_compound_candidates(variants, family):

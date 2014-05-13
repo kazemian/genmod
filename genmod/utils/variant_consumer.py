@@ -168,7 +168,10 @@ class VariantConsumer(multiprocessing.Process):
             if self.chr_prefix:
                 variant_dict[variant_id]['CHROM'] = 'chr'+variant_dict[variant_id]['CHROM']
             # if we should include the annotation:
-            vcf_info.append('ANN=' + ':'.join(feature_list))
+            if len(feature_list) > 0:
+                vcf_info.append('ANN=' + ':'.join(feature_list))
+            else:
+                vcf_info.append('ANN=' + '-')
             # if we should include compounds:
             vcf_info.append('Comp=' + ':'.join(compounds_list))
             # if we should include genetic models:
