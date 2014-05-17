@@ -323,14 +323,14 @@ def main():
             gene_db = os.path.join(annopath, 'genes.db')
             exon_db = os.path.join(annopath, 'exons.db')
         
-            try:
-                with open(gene_db, 'rb') as f:
-                    gene_trees = pickle.load(f)
-                with open(exon_db, 'rb') as g:
-                    exon_trees = pickle.load(g)
-            except FileNotFoundError:
-                print('You need to build annotations! See documentation.')
-                pass
+            # try:
+            #     with open(gene_db, 'rb') as f:
+            #         gene_trees = pickle.load(f)
+            #     with open(exon_db, 'rb') as g:
+            #         exon_trees = pickle.load(g)
+            # except FileNotFoundError:
+            #     print('You need to build annotations! See documentation.')
+            #     pass
             
         
     # print(my_head_parser.__dict__)
