@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-genetic_models.py
+strict_genetic_models.py
 
 Genetic models take a family object with individuals and variants and annotates for each variant which models they follow in this family.
 
@@ -16,37 +16,6 @@ The following models are checked:
 In this model a variant must imply affected status, otherwise it can not be dominant. All sick has to be ay least heterozygote for the variant and all healthy can not have it.
 
 We will assume that each individual that we have information about is present among the individual in self.family.individuals.
-
-
-is the individual sick?
-
-    - If the individual is homozygote alternative then AD/AD-denovo and AR/AR-denovo are ok
-
-    - If the individual is is heterozygote then AD/AD-denovo are ok but AR/AR-denovo are not ok
-
-    - If the individual is homozygote reference no model is ok
-
-    - If the individual has no call all models are ok
-
-
-
-is the individual healthy?
-
-    - If the individual is homozygote alternative then no model is ok
-
-    - If the individual is heterozygote then AR/AR-denove are ok but AD/AD-denovo are not ok
-
-    - If the individual is homozygote referense all models are ok
-
-    - If there is no call all models are ok
-
-
-
-is there no known phenotype?
-
-    - All models are ok for all variants
-
-
 
 Created by Måns Magnusson on 2013-02-12.
 Copyright (c) 2013 __MyCompanyName__. All rights reserved.
@@ -160,6 +129,7 @@ def check_compound_candidates(variant, family):
         
     """
     # This is the case when the variant is located in an uninteresting region:
+    
     if not variant.get('comp_candidate',True):
         return False
     
@@ -167,7 +137,7 @@ def check_compound_candidates(variant, family):
         individual_genotype = variant['Genotypes'].get(individual, genotype.Genotype())
         if family.individuals[individual].affected:
         # Affected can not be hom. ref. for compounds
-            if individual_genotype.homo_ref:
+            if not individual_genotype.heterozygous:
                 return False
         elif not family.individuals[individual].affected:
             if individual_genotype.homo_alt:
@@ -266,7 +236,7 @@ def check_X_recessive(variant, family):
         individual_genotype = variant['Genotypes'].get(individual, genotype.Genotype())
         
         # The case where the individual is healthy
-        if not family.individuals[individual].affected:
+        if family.individuals[individual].healthy:
             # If individual is healthy and homozygote alternative the variant can not be deleterious:
             if individual_genotype.homo_alt:
                 variant['Inheritance_model']['XR'] = False
@@ -282,18 +252,12 @@ def check_X_recessive(variant, family):
         
         # The case when the individual is sick
         elif family.individuals[individual].affected:
-        #If the individual is sick and homozygote ref it can not be x-recessive
-            if individual_genotype.homo_ref:
+        #If the individual is sick it has to be homozygote alt
+            if not individual_genotype.homo_alt:
                 variant['Inheritance_model']['XR'] = False
                 variant['Inheritance_model']['XR_dn'] = False
                 return
-        # Women have to be hom alt to be sick (almost allways carriers)
-            elif family.individuals[individual].sex == 2:
-                if individual_genotype.genotyped:
-                    if not individual_genotype.homo_alt:
-                        variant['Inheritance_model']['XR'] = False
-                        variant['Inheritance_model']['XR_dn'] = False
-                        return
+            
             if family.individuals[individual].has_parents:
                 check_parents('X_recessive', individual, family, variant)
     return
@@ -304,7 +268,7 @@ def check_X_dominant(variant, family):
         # Get the genotype for this variant for this individual
         individual_genotype = variant['Genotypes'].get(individual, genotype.Genotype())
         # The case where the individual is healthy
-        if not family.individuals[individual].affected:
+        if not family.individuals[individual].affected():
         # Healthy womans can be carriers but not homozygote:
             if family.individuals[individual].sex == 2:
                 if individual_genotype.homo_alt:
