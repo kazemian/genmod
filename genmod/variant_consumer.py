@@ -76,7 +76,10 @@ class VariantConsumer(multiprocessing.Process):
                 if gt_call.genotype_quality > 0:
                     genotype_scores.append(10**-(float(gt_call.genotype_quality)/10))
         if len(genotype_scores) > 0:
-            model_score = (str(round(-10*log10(1-reduce(operator.mul, [1-score for score in genotype_scores])))))
+            if(reduce(operator.mul, [1-score for score in genotype_scores])==1):
+               model_score = "Inf"
+            else:
+               model_score = (str(round(-10*log10(1-reduce(operator.mul, [1-score for score in genotype_scores])))))
         
         return model_score
     
